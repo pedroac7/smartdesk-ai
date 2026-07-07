@@ -1,0 +1,12 @@
+smartdesk:
+  message: "Config Server funcionando"
+  environment: "local"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,refresh
+  endpoint:
+    health:
+      show-details: always
