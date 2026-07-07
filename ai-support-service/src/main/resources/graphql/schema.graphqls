@@ -1,0 +1,17 @@
+type Query {
+  analyzeTicket(input: AnalyzeTicketInput!): TicketAnalysis!
+}
+
+input AnalyzeTicketInput {
+  conversationId: String!
+  description: String!
+}
+
+type TicketAnalysis {
+  category: String!
+  priority: String!
+  summary: String!
+  suggestedAnswer: String!
+  ragSource: String
+  mcpRuleUsed: String
+}

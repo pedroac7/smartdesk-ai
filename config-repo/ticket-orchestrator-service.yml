@@ -1,2 +1,9 @@
 server:
   port: 8081
+
+smartdesk:
+  services:
+    ai-support:
+      base-url: http://ai-support-service
+    sla-function:
+      base-url: http://sla-function-service
