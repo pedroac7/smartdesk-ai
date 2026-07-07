@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: ticket-orchestrator-service
+  config:
+    import: optional:configserver:http://localhost:8888
