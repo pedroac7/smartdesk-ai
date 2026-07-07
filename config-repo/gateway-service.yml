@@ -5,3 +5,17 @@ management:
   health:
     redis:
       enabled: false
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: ticket-orchestrator-status
+              uri: lb://ticket-orchestrator-service
+              predicates:
+                - Path=/api/tickets/**
+              filters:
+                - StripPrefix=1
+                - Retry=3
