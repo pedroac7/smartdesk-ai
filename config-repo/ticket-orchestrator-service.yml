@@ -7,3 +7,40 @@ smartdesk:
       base-url: http://ai-support-service
     sla-function:
       base-url: http://sla-function-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,circuitbreakers,circuitbreakerevents
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      aiSupportService:
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 3
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 2
+        registerHealthIndicator: true
+  retry:
+    instances:
+      aiSupportService:
+        maxAttempts: 3
+        waitDuration: 500ms
+  timelimiter:
+    instances:
+      aiSupportService:
+        timeoutDuration: 3s
+  bulkhead:
+    instances:
+      aiSupportService:
+        maxConcurrentCalls: 5
+        maxWaitDuration: 0
