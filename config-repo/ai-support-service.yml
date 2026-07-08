@@ -1,2 +1,24 @@
 server:
   port: 8082
+
+spring:
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+
+smartdesk:
+  ai:
+    mode: ${SMARTDESK_AI_MODE:fake}
+    openai:
+      model: ${SMARTDESK_AI_OPENAI_MODEL:gpt-4o-mini}
+  rag:
+    docs-path: ${SMARTDESK_RAG_DOCS_PATH:../rag-docs}
+  services:
+    support-rules-mcp:
+      base-url: ${SMARTDESK_SERVICES_SUPPORT_RULES_MCP_BASE_URL:http://support-rules-mcp-server}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus

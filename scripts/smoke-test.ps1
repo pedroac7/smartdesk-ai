@@ -24,3 +24,39 @@ $response = Invoke-RestMethod -Method Post -Uri $analyzeUrl -ContentType "applic
     supportTeam = $response.supportTeam
     mode = $response.mode
 } | Format-List
+
+$graphqlUrl = "http://localhost:8082/graphql"
+$graphqlPayload = @{
+    query = @"
+query AnalyzeTicket(`$input: AnalyzeTicketInput!) {
+  analyzeTicket(input: `$input) {
+    category
+    priority
+    ragSource
+    mcpRuleUsed
+  }
+}
+"@
+    variables = @{
+        input = @{
+            conversationId = "smoke-direct-ai"
+            description = "Meu notebook nao conecta no Wi-Fi"
+        }
+    }
+} | ConvertTo-Json -Depth 5
+
+try {
+    Write-Host "POST $graphqlUrl"
+    $graphqlResponse = Invoke-RestMethod -Method Post -Uri $graphqlUrl -ContentType "application/json" -Body $graphqlPayload
+    $analysis = $graphqlResponse.data.analyzeTicket
+
+    [PSCustomObject]@{
+        directAiCategory = $analysis.category
+        directAiPriority = $analysis.priority
+        ragSource = $analysis.ragSource
+        mcpRuleUsed = $analysis.mcpRuleUsed
+    } | Format-List
+}
+catch {
+    Write-Host "Direct ai-support-service GraphQL check skipped: $($_.Exception.Message)"
+}
