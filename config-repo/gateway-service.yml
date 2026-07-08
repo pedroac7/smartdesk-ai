@@ -6,6 +6,14 @@ management:
     redis:
       enabled: false
 
+smartdesk:
+  gateway:
+    rate-limit:
+      enabled: true
+      capacity: 10
+      refill-period: 10s
+      path: /api/tickets/analyze
+
 spring:
   cloud:
     gateway:

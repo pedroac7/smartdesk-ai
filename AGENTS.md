@@ -230,8 +230,9 @@ Responsibilities:
 
 - expose GraphQL API;
 - classify support tickets;
-- use Spring AI when configured;
-- support a fake/local mode when no real API key is available;
+- support an implemented fake/local mode when no real API key is available;
+- in fake mode, demonstrate classification, RAG lookup, Chat Memory and the project's own MCP rules service;
+- use Spring AI/OpenAI only when explicitly configured, for example with `smartdesk.ai.mode=openai`;
 - use Chat Memory by `conversationId`;
 - use RAG with documents from `rag-docs`;
 - call tools/rules from `support-rules-mcp-server`;
@@ -277,7 +278,7 @@ openai
 
 Default mode must be `fake`.
 
-The service must start and work without `OPENAI_API_KEY`.
+The service must start and work without `OPENAI_API_KEY` in fake mode.
 
 Never hardcode API keys.
 
@@ -429,18 +430,23 @@ The project is being developed incrementally.
 Known implemented or expected stages:
 
 ```text
-1. Config Server — implemented
-2. Eureka cluster — implemented
-3. Config/Eureka clients — implemented
-4. Gateway routes — implemented
-5. Minimal fake business flow — implemented
-6. Resilience4j — implemented
-7. Local startup/build scripts — implemented
-8. Observability with Prometheus/Grafana — implemented or in stabilization
-9. Spring AI / RAG / Chat Memory / MCP — in progress or stabilization
-10. Docker Compose for full stack — next major infrastructure step
-11. JMeter load testing — after Docker/local stabilization
-12. Final README and presentation scripts — final phase
+1. Config Server - implemented
+2. Eureka cluster - implemented
+3. Config/Eureka clients - implemented
+4. Gateway routes - implemented
+5. Minimal fake business flow - implemented
+6. Resilience4j - implemented
+7. Local startup/build scripts - implemented
+8. Observability with Prometheus/Grafana - implemented, needs dashboard polish for presentation
+9. Spring AI/RAG/Chat Memory/project MCP - implemented locally in fake mode
+10. External/third-party MCP - pending
+11. Gateway rate limit - pending
+12. Runtime-changeable configuration demo - pending
+13. Real LLM mode with Spring AI/OpenAI - pending or optional but recommended
+14. Docker Compose for full stack - pending
+15. JMeter load testing - pending
+16. Knee Capacity and Usable Capacity investigation - pending
+17. Final README and presentation script - pending
 ```
 
 When asked to continue development, prefer the next unfinished item in this order unless explicitly instructed otherwise.
@@ -517,6 +523,22 @@ http://localhost:8084
 ```
 
 but keep them in `config-repo`, not hardcoded in Java.
+
+### Runtime-changeable configuration demo
+
+This is still pending.
+
+The project should demonstrate a simple runtime configuration change through Config Server. Keep the demo small and reliable.
+
+Good candidate properties:
+
+```text
+smartdesk.ai.mode
+smartdesk.demo.message
+a simple demo threshold or message used by one service
+```
+
+Prefer `/actuator/refresh` if it is compatible with the current Spring Boot/Spring Cloud stack and already available dependencies. Do not create a complex custom configuration system for this requirement.
 
 ## Build commands
 
@@ -625,9 +647,11 @@ GET  http://localhost:8084/mcp/tools
 
 ## Observability rules
 
+Prometheus and Grafana are already present in `observability/`.
+
 All services should expose Actuator health.
 
-All services should expose Prometheus metrics when possible:
+All services should expose Prometheus metrics:
 
 ```text
 /actuator/prometheus
@@ -676,7 +700,14 @@ Grafana URL:
 http://localhost:3000
 ```
 
-Grafana must be able to show circuit breaker state during the presentation.
+The Grafana dashboard still needs presentation polish. It must clearly show:
+
+- UP/DOWN status of services;
+- HTTP traffic by service;
+- HTTP latency;
+- JVM memory;
+- `aiSupportService` circuit breaker state;
+- circuit breaker events/calls.
 
 Important Prometheus queries:
 
@@ -771,13 +802,13 @@ POST /api/tickets/analyze
 
 Gateway routes must be configured in `config-repo`, not Java code.
 
-Retry can be configured in Gateway.
+Gateway retry is already configured for the main ticket route.
 
-Rate limiting should be applied primarily in `gateway-service`.
+Rate limiting is still pending and should be implemented in `gateway-service`.
 
 If rate limiting requires Redis, keep Redis as an external backing service and configure it externally.
 
-Do not break the basic route while implementing rate limiting.
+Do not break the existing `/api/tickets/**` routes while implementing rate limiting.
 
 ## GraphQL rules
 
@@ -841,6 +872,8 @@ The AI service should demonstrate Spring AI usage when possible.
 
 However, the project must remain functional without a real API key.
 
+Fake mode is implemented and is useful for local demos. It should continue to demonstrate ticket classification, RAG, Chat Memory and the project's own MCP rules service without external credentials.
+
 Expected configuration:
 
 ```yaml
@@ -859,11 +892,14 @@ openai
 Rules:
 
 - default mode must be `fake`;
+- fake mode must remain demonstrable and must not be removed;
 - do not hardcode API keys;
 - use environment variables such as `OPENAI_API_KEY`;
 - do not commit `.env` files;
 - fake mode must not call external LLM APIs;
-- OpenAI mode should only be used when explicitly configured.
+- OpenAI mode should only be used when explicitly configured;
+- real LLM mode with Spring AI/OpenAI should be implemented and tested if time allows;
+- if no real key is available, the project must remain fully demonstrable in fake mode.
 
 If Spring AI APIs are unstable due to version compatibility, prefer a simple, build-stable implementation that still clearly demonstrates the architecture and configuration.
 
@@ -927,13 +963,27 @@ The `ragSource` field should identify the document used.
 
 ## MCP rules
 
-The MCP server should be minimal.
+MCP support is split into the project's own MCP-style rules service and a future external/third-party MCP demonstration.
 
 Do not make MCP complex.
 
 Its purpose is to demonstrate that the AI service can call external tools/rules.
 
-Current expected endpoints:
+### Project MCP
+
+The current project-owned MCP-style service is:
+
+```text
+support-rules-mcp-server
+```
+
+Expected local port:
+
+```text
+8084
+```
+
+Current endpoints:
 
 ```text
 GET  /mcp/status
@@ -965,6 +1015,22 @@ Expected fallback field:
 ```text
 mcpRuleUsed = "mcp-unavailable"
 ```
+
+### External/third-party MCP
+
+External or third-party MCP integration is still pending.
+
+It should be implemented in a simple and demonstrable way. Acceptable approaches include:
+
+- a local service simulating a third-party MCP server, for example `third-party-mcp-server` on port `8085`;
+- a configurable integration with an external/local tool endpoint.
+
+Rules:
+
+- configuration must live in `config-repo`;
+- the main ticket flow must not fail if the external MCP is unavailable;
+- failure should produce a compatible fallback value, such as `externalMcpRuleUsed = "external-mcp-unavailable"` or an equivalent backward-compatible field;
+- do not replace the project MCP with external MCP.
 
 ## Docker rules
 
@@ -1005,6 +1071,8 @@ JMeter plans live in:
 jmeter/
 ```
 
+JMeter load testing is still pending.
+
 The main load test should target Gateway, not internal services directly.
 
 Main endpoint:
@@ -1016,11 +1084,13 @@ POST /api/tickets/analyze
 The presentation must show:
 
 - more than 5 simultaneous users;
-- load below Knee Capacity;
+- a way to identify Knee Capacity;
+- a way to identify Usable Capacity;
+- load below Knee Capacity for normal operation;
 - zero errors in normal operation if possible;
 - increased errors or fallback behavior after killing instances;
-- recovery after restarting instances;
-- observability showing the effect of load and failures.
+- decreased errors or fallback behavior after restarting instances;
+- Grafana/Prometheus showing the effect of load, failures and recovery.
 
 JMeter artifacts should be simple and reproducible.
 
@@ -1038,15 +1108,17 @@ Preferred demo sequence:
 3. Show Gateway status endpoint.
 4. Run smoke test with normal mode.
 5. Show final response with mode = FAKE_AI.
-6. Show Prometheus targets UP.
-7. Show Grafana dashboard with HTTP/JVM/circuit breaker metrics.
-8. Stop ai-support-service.
-9. Run smoke test again.
-10. Show mode = FALLBACK.
-11. Show circuit breaker metrics/events.
-12. Restart ai-support-service.
-13. Show recovery.
-14. Run JMeter test below knee capacity.
+6. Show direct AI feature script demonstrating RAG, Chat Memory and project MCP.
+7. If implemented, show external/third-party MCP behavior.
+8. Show Prometheus targets UP.
+9. Show Grafana dashboard with HTTP/JVM/circuit breaker metrics.
+10. Stop ai-support-service.
+11. Run smoke test again.
+12. Show mode = FALLBACK.
+13. Show circuit breaker state/events/calls in Grafana.
+14. Restart ai-support-service.
+15. Show recovery.
+16. Run JMeter test and discuss Knee Capacity and Usable Capacity.
 ```
 
 Avoid risky live coding during presentation.
@@ -1177,6 +1249,9 @@ Do not:
 
 - add a database;
 - replace GraphQL with REST between Orchestrator and AI service;
+- remove the fake AI mode;
+- make an AI key mandatory for local demos;
+- replace the project MCP with external MCP;
 - remove Eureka;
 - remove Config Server;
 - remove Resilience4j;
@@ -1186,5 +1261,6 @@ Do not:
 - add frontend UI;
 - add Kubernetes;
 - add complex persistence;
+- add a database without an explicit request;
 - introduce paid/external services as mandatory;
 - commit secrets.
