@@ -36,7 +36,7 @@ public class SupportRulesMcpClient {
 
 		try {
 			RestClient restClient = restClientBuilderFor(baseUrl).clone()
-					.baseUrl(baseUrl)
+					.baseUrl(restClientBaseUrl(baseUrl))
 					.build();
 
 			SupportRuleResponse response = restClient.post()
@@ -65,16 +65,36 @@ public class SupportRulesMcpClient {
 	}
 
 	private boolean shouldUseLoadBalancer(String url) {
+		if (isAbsoluteHttpUrl(url)) {
+			return false;
+		}
+		if (url.startsWith("lb://")) {
+			return true;
+		}
 		try {
 			String host = URI.create(url).getHost();
 			if (!StringUtils.hasText(host)) {
-				return false;
+				return StringUtils.hasText(url);
 			}
 			return !isLocalHost(host) && !isIpAddress(host) && !host.contains(".");
 		}
 		catch (IllegalArgumentException ex) {
 			return false;
 		}
+	}
+
+	private String restClientBaseUrl(String url) {
+		if (url.startsWith("lb://")) {
+			return "http://" + url.substring("lb://".length());
+		}
+		if (isAbsoluteHttpUrl(url)) {
+			return url;
+		}
+		return "http://" + url;
+	}
+
+	private boolean isAbsoluteHttpUrl(String url) {
+		return url.startsWith("http://") || url.startsWith("https://");
 	}
 
 	private boolean isLocalHost(String host) {

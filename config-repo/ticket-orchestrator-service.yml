@@ -3,7 +3,7 @@
 
 smartdesk:
   config-server:
-    url: http://localhost:8888
+    url: ${SMARTDESK_CONFIG_SERVER_URL:http://localhost:8888}
   fallback:
     category: "SUPORTE_GERAL"
     priority: "MEDIA"
@@ -13,9 +13,9 @@ smartdesk:
     support-team: "Equipe de ContingÃªncia"
   services:
     ai-support:
-      base-url: http://localhost:8082
+      base-url: ${SMARTDESK_SERVICES_AI_SUPPORT_BASE_URL:http://localhost:8082}
     sla-function:
-      base-url: http://localhost:8083
+      base-url: ${SMARTDESK_SERVICES_SLA_FUNCTION_BASE_URL:http://localhost:8083}
 
 management:
   endpoints:

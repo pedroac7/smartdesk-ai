@@ -69,8 +69,14 @@ Start-SmartDeskService -ServiceDirectory "eureka-server" -WindowTitle "SmartDesk
 Write-Host "Waiting for Eureka servers..."
 Start-Sleep -Seconds 20
 
+$smartdeskAiMode = if ([string]::IsNullOrWhiteSpace($env:SMARTDESK_AI_MODE)) { "fake" } else { $env:SMARTDESK_AI_MODE }
+$geminiApiKey = if ($null -eq $env:GEMINI_API_KEY) { "" } else { $env:GEMINI_API_KEY }
+$openAiApiKey = if ($null -eq $env:OPENAI_API_KEY) { "" } else { $env:OPENAI_API_KEY }
+
 Start-SmartDeskService -ServiceDirectory "ai-support-service" -WindowTitle "SmartDesk ai-support-service" -Environment @{
-    SMARTDESK_AI_MODE = "fake"
+    SMARTDESK_AI_MODE = $smartdeskAiMode
+    GEMINI_API_KEY = $geminiApiKey
+    OPENAI_API_KEY = $openAiApiKey
     SMARTDESK_RAG_DOCS_PATH = "../rag-docs"
     SMARTDESK_SERVICES_SUPPORT_RULES_MCP_BASE_URL = "http://localhost:8084"
 }

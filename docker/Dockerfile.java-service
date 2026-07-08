@@ -1,0 +1,24 @@
+ARG SERVICE_DIR
+
+FROM eclipse-temurin:25-jdk AS build
+ARG SERVICE_DIR
+
+WORKDIR /build
+COPY ${SERVICE_DIR}/mvnw ./mvnw
+COPY ${SERVICE_DIR}/.mvn ./.mvn
+COPY ${SERVICE_DIR}/pom.xml ./pom.xml
+RUN chmod +x ./mvnw
+
+COPY ${SERVICE_DIR}/src ./src
+RUN ./mvnw -B clean package -DskipTests
+
+FROM eclipse-temurin:25-jre
+
+WORKDIR /app
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends curl \
+	&& rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /build/target/*.jar /app/app.jar
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

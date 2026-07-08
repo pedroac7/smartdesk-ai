@@ -1,0 +1,21 @@
+FROM eclipse-temurin:25-jdk AS build
+
+WORKDIR /build
+COPY ai-support-service/mvnw ./mvnw
+COPY ai-support-service/.mvn ./.mvn
+COPY ai-support-service/pom.xml ./pom.xml
+RUN chmod +x ./mvnw
+
+COPY ai-support-service/src ./src
+RUN ./mvnw -B clean package -DskipTests
+
+FROM eclipse-temurin:25-jre
+
+WORKDIR /app
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends curl nodejs npm \
+	&& rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /build/target/*.jar /app/app.jar
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
