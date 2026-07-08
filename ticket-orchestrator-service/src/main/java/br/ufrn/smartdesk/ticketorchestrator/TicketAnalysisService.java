@@ -11,12 +11,15 @@ public class TicketAnalysisService {
 
 	private final AiSupportClient aiSupportClient;
 	private final WebClient slaFunctionClient;
+	private final FallbackPolicyProvider fallbackPolicyProvider;
 
 	public TicketAnalysisService(AiSupportClient aiSupportClient,
 			SmartdeskWebClientFactory webClientFactory,
-			SmartdeskServicesProperties properties) {
+			SmartdeskServicesProperties properties,
+			FallbackPolicyProvider fallbackPolicyProvider) {
 		this.aiSupportClient = aiSupportClient;
 		this.slaFunctionClient = webClientFactory.create(properties.slaFunction().baseUrl());
+		this.fallbackPolicyProvider = fallbackPolicyProvider;
 	}
 
 	public TicketAnalyzeResponse analyze(TicketAnalyzeRequest request) {
@@ -39,13 +42,14 @@ public class TicketAnalysisService {
 	}
 
 	private TicketAnalyzeResponse fallbackResponse(AiTicketAnalysis analysis) {
+		FallbackPolicyProvider.FallbackPolicy fallback = fallbackPolicyProvider.current();
 		return new TicketAnalyzeResponse(
-				analysis.category(),
-				analysis.priority(),
-				analysis.summary(),
-				analysis.suggestedAnswer(),
-				24,
-				"Triagem Manual",
+				fallback.category(),
+				fallback.priority(),
+				fallback.summary(),
+				fallback.suggestedAnswer(),
+				fallback.slaHours(),
+				fallback.supportTeam(),
 				"FALLBACK");
 	}
 

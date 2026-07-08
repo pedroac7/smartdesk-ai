@@ -13,10 +13,10 @@ public record AiTicketAnalysis(
 
 	public static AiTicketAnalysis fallback() {
 		return new AiTicketAnalysis(
-				"SUPORTE_GERAL",
-				"MEDIA",
-				"Análise automática indisponível no momento.",
-				"Seu chamado foi registrado e será analisado por um atendente.",
+				null,
+				null,
+				null,
+				null,
 				null,
 				null,
 				FALLBACK_MODE);

@@ -2,6 +2,15 @@ server:
   port: 8081
 
 smartdesk:
+  config-server:
+    url: http://localhost:8888
+  fallback:
+    category: "SUPORTE_GERAL"
+    priority: "MEDIA"
+    summary: "Análise automática indisponível no momento."
+    suggested-answer: "Seu chamado foi registrado e será analisado por um atendente."
+    sla-hours: 24
+    support-team: "Triagem Manual"
   services:
     ai-support:
       base-url: http://localhost:8082
@@ -12,7 +21,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus,circuitbreakers,circuitbreakerevents
+        include: health,info,metrics,prometheus,circuitbreakers,circuitbreakerevents,refresh
   endpoint:
     health:
       show-details: always
