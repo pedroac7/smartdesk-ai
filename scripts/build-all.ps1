@@ -6,11 +6,11 @@ $projectRoot = (Resolve-Path (Join-Path $scriptDir "..")).Path
 $services = @(
     "config-server",
     "eureka-server",
-    "gateway-service",
-    "ticket-orchestrator-service",
     "ai-support-service",
     "sla-function-service",
-    "support-rules-mcp-server"
+    "support-rules-mcp-server",
+    "ticket-orchestrator-service",
+    "gateway-service"
 )
 
 foreach ($service in $services) {

@@ -13,12 +13,10 @@ public class TicketAnalysisService {
 	private final WebClient slaFunctionClient;
 
 	public TicketAnalysisService(AiSupportClient aiSupportClient,
-			WebClient.Builder loadBalancedWebClientBuilder,
+			SmartdeskWebClientFactory webClientFactory,
 			SmartdeskServicesProperties properties) {
 		this.aiSupportClient = aiSupportClient;
-		this.slaFunctionClient = loadBalancedWebClientBuilder.clone()
-				.baseUrl(properties.slaFunction().baseUrl())
-				.build();
+		this.slaFunctionClient = webClientFactory.create(properties.slaFunction().baseUrl());
 	}
 
 	public TicketAnalyzeResponse analyze(TicketAnalyzeRequest request) {

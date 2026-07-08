@@ -12,7 +12,7 @@ Write-Host ""
 $body = @{
     conversationId = "demo-1"
     description = "Meu notebook nao conecta no Wi-Fi"
-} | ConvertTo-Json
+} | ConvertTo-Json -Depth 10
 
 Write-Host "POST $analyzeUrl"
 $response = Invoke-RestMethod -Method Post -Uri $analyzeUrl -ContentType "application/json" -Body $body
@@ -43,11 +43,15 @@ query AnalyzeTicket(`$input: AnalyzeTicketInput!) {
             description = "Meu notebook nao conecta no Wi-Fi"
         }
     }
-} | ConvertTo-Json -Depth 5
+} | ConvertTo-Json -Depth 10
 
 try {
     Write-Host "POST $graphqlUrl"
     $graphqlResponse = Invoke-RestMethod -Method Post -Uri $graphqlUrl -ContentType "application/json" -Body $graphqlPayload
+    if ($graphqlResponse.errors) {
+        Write-Host "GraphQL errors:"
+        $graphqlResponse.errors | ConvertTo-Json -Depth 10 | Write-Host
+    }
     $analysis = $graphqlResponse.data.analyzeTicket
 
     [PSCustomObject]@{

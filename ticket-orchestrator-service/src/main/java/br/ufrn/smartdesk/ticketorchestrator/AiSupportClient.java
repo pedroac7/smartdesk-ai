@@ -34,11 +34,9 @@ public class AiSupportClient {
 
 	private final WebClient aiSupportClient;
 
-	public AiSupportClient(WebClient.Builder loadBalancedWebClientBuilder,
+	public AiSupportClient(SmartdeskWebClientFactory webClientFactory,
 			SmartdeskServicesProperties properties) {
-		this.aiSupportClient = loadBalancedWebClientBuilder.clone()
-				.baseUrl(properties.aiSupport().baseUrl())
-				.build();
+		this.aiSupportClient = webClientFactory.create(properties.aiSupport().baseUrl());
 	}
 
 	@CircuitBreaker(name = AI_SUPPORT_SERVICE, fallbackMethod = "fallbackAnalyze")

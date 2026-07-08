@@ -30,9 +30,15 @@ query AnalyzeTicket(`$input: AnalyzeTicketInput!) {
                 description = $Description
             }
         }
-    } | ConvertTo-Json -Depth 5
+    } | ConvertTo-Json -Depth 10
 
     $response = Invoke-RestMethod -Method Post -Uri $graphqlUrl -ContentType "application/json" -Body $payload
+    if ($response.errors) {
+        Write-Host "GraphQL errors for conversationId=$ConversationId"
+        $response.errors | ConvertTo-Json -Depth 10 | Write-Host
+        throw "GraphQL returned errors for conversationId=$ConversationId"
+    }
+
     return $response.data.analyzeTicket
 }
 

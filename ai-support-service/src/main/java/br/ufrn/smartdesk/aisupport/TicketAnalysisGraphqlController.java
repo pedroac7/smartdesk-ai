@@ -14,8 +14,7 @@ public class TicketAnalysisGraphqlController {
 	}
 
 	@QueryMapping
-	public br.ufrn.smartdesk.aisupport.TicketAnalysis analyzeTicket(
-			@Argument br.ufrn.smartdesk.aisupport.AnalyzeTicketInput input) {
+	public TicketAnalysis analyzeTicket(@Argument("input") AnalyzeTicketInput input) {
 		return ticketAnalysisService.analyze(input);
 	}
 }

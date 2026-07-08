@@ -1,22 +1,30 @@
 package br.ufrn.smartdesk.aisupport;
 
+import java.net.URI;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
 
 @Service
 public class SupportRulesMcpClient {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SupportRulesMcpClient.class);
 
+	private final RestClient.Builder restClientBuilder;
+
 	private final RestClient.Builder loadBalancedRestClientBuilder;
 
 	private final String baseUrl;
 
-	public SupportRulesMcpClient(RestClient.Builder loadBalancedRestClientBuilder, AiSupportProperties properties) {
+	public SupportRulesMcpClient(
+			@Qualifier("restClientBuilder") RestClient.Builder restClientBuilder,
+			@Qualifier("loadBalancedRestClientBuilder") RestClient.Builder loadBalancedRestClientBuilder,
+			AiSupportProperties properties) {
+		this.restClientBuilder = restClientBuilder;
 		this.loadBalancedRestClientBuilder = loadBalancedRestClientBuilder;
 		this.baseUrl = trimTrailingSlash(properties.getServices().getSupportRulesMcp().getBaseUrl());
 	}
@@ -27,7 +35,7 @@ public class SupportRulesMcpClient {
 		}
 
 		try {
-			RestClient restClient = loadBalancedRestClientBuilder.clone()
+			RestClient restClient = restClientBuilderFor(baseUrl).clone()
 					.baseUrl(baseUrl)
 					.build();
 
@@ -43,10 +51,38 @@ public class SupportRulesMcpClient {
 
 			return new SupportRuleResult(response.ruleName(), response.recommendation(), true);
 		}
-		catch (RestClientException ex) {
+		catch (RuntimeException ex) {
 			LOGGER.warn("Support rules MCP server unavailable: {}", ex.getMessage());
 			return SupportRuleResult.unavailable();
 		}
+	}
+
+	private RestClient.Builder restClientBuilderFor(String url) {
+		if (shouldUseLoadBalancer(url)) {
+			return loadBalancedRestClientBuilder;
+		}
+		return restClientBuilder;
+	}
+
+	private boolean shouldUseLoadBalancer(String url) {
+		try {
+			String host = URI.create(url).getHost();
+			if (!StringUtils.hasText(host)) {
+				return false;
+			}
+			return !isLocalHost(host) && !isIpAddress(host) && !host.contains(".");
+		}
+		catch (IllegalArgumentException ex) {
+			return false;
+		}
+	}
+
+	private boolean isLocalHost(String host) {
+		return "localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host) || "::1".equals(host);
+	}
+
+	private boolean isIpAddress(String host) {
+		return host.matches("\\d+\\.\\d+\\.\\d+\\.\\d+");
 	}
 
 	private String trimTrailingSlash(String value) {

@@ -15,7 +15,7 @@ smartdesk:
     docs-path: ${SMARTDESK_RAG_DOCS_PATH:../rag-docs}
   services:
     support-rules-mcp:
-      base-url: ${SMARTDESK_SERVICES_SUPPORT_RULES_MCP_BASE_URL:http://support-rules-mcp-server}
+      base-url: ${SMARTDESK_SERVICES_SUPPORT_RULES_MCP_BASE_URL:http://localhost:8084}
 
 management:
   endpoints:

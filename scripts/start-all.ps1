@@ -69,7 +69,11 @@ Start-SmartDeskService -ServiceDirectory "eureka-server" -WindowTitle "SmartDesk
 Write-Host "Waiting for Eureka servers..."
 Start-Sleep -Seconds 20
 
-Start-SmartDeskService -ServiceDirectory "ai-support-service" -WindowTitle "SmartDesk ai-support-service"
+Start-SmartDeskService -ServiceDirectory "ai-support-service" -WindowTitle "SmartDesk ai-support-service" -Environment @{
+    SMARTDESK_AI_MODE = "fake"
+    SMARTDESK_RAG_DOCS_PATH = "../rag-docs"
+    SMARTDESK_SERVICES_SUPPORT_RULES_MCP_BASE_URL = "http://localhost:8084"
+}
 Start-Sleep -Seconds 5
 
 Start-SmartDeskService -ServiceDirectory "sla-function-service" -WindowTitle "SmartDesk sla-function-service"
@@ -89,3 +93,8 @@ Write-Host "Useful URLs:"
 Write-Host "  Eureka 8761:  http://localhost:8761"
 Write-Host "  Eureka 8762:  http://localhost:8762"
 Write-Host "  Gateway test: http://localhost:8080/api/tickets/status"
+Write-Host "  MCP status:   http://localhost:8084/mcp/status"
+Write-Host ""
+Write-Host "Useful commands:"
+Write-Host "  .\scripts\smoke-test.ps1"
+Write-Host "  .\scripts\test-ai-features.ps1"

@@ -18,6 +18,11 @@ public class AiSupportConfiguration {
 	}
 
 	@Bean
+	public RestClient.Builder restClientBuilder() {
+		return RestClient.builder();
+	}
+
+	@Bean
 	@LoadBalanced
 	public RestClient.Builder loadBalancedRestClientBuilder() {
 		return RestClient.builder();
