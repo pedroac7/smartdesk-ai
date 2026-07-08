@@ -37,6 +37,8 @@ public class AiSupportProperties {
 
 		private final Openai openai = new Openai();
 
+		private final Gemini gemini = new Gemini();
+
 		public String getMode() {
 			return mode;
 		}
@@ -49,8 +51,16 @@ public class AiSupportProperties {
 			return openai;
 		}
 
+		public Gemini getGemini() {
+			return gemini;
+		}
+
 		public boolean isOpenaiMode() {
 			return "openai".equalsIgnoreCase(mode);
+		}
+
+		public boolean isGeminiMode() {
+			return "gemini".equalsIgnoreCase(mode);
 		}
 	}
 
@@ -64,6 +74,39 @@ public class AiSupportProperties {
 
 		public void setModel(String model) {
 			this.model = model;
+		}
+	}
+
+	public static class Gemini {
+
+		private String baseUrl = "https://generativelanguage.googleapis.com/v1beta/openai";
+
+		private String model = "gemini-2.5-flash-lite";
+
+		private Duration timeout = Duration.ofSeconds(10);
+
+		public String getBaseUrl() {
+			return baseUrl;
+		}
+
+		public void setBaseUrl(String baseUrl) {
+			this.baseUrl = baseUrl;
+		}
+
+		public String getModel() {
+			return model;
+		}
+
+		public void setModel(String model) {
+			this.model = model;
+		}
+
+		public Duration getTimeout() {
+			return timeout;
+		}
+
+		public void setTimeout(Duration timeout) {
+			this.timeout = timeout;
 		}
 	}
 

@@ -16,4 +16,6 @@ type TicketAnalysis {
   mcpRuleUsed: String
   externalMcpToolUsed: String
   externalMcpAdvice: String
+  aiProvider: String
+  realAiUsed: Boolean
 }

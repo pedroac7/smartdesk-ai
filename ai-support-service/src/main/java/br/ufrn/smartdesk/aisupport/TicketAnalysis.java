@@ -8,5 +8,7 @@ public record TicketAnalysis(
 		String ragSource,
 		String mcpRuleUsed,
 		String externalMcpToolUsed,
-		String externalMcpAdvice) {
+		String externalMcpAdvice,
+		String aiProvider,
+		boolean realAiUsed) {
 }

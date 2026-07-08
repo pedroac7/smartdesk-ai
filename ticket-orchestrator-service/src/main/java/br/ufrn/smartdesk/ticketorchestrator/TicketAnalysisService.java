@@ -38,7 +38,7 @@ public class TicketAnalysisService {
 				analysis.suggestedAnswer(),
 				sla.slaHours(),
 				sla.supportTeam(),
-				"FAKE_AI");
+				modeFor(analysis));
 	}
 
 	private TicketAnalyzeResponse fallbackResponse(AiTicketAnalysis analysis) {
@@ -62,6 +62,13 @@ public class TicketAnalysisService {
 				.retrieve()
 				.bodyToMono(SlaResponse.class)
 				.block();
+	}
+
+	private String modeFor(AiTicketAnalysis analysis) {
+		if (analysis.realAiUsed() && "GEMINI".equalsIgnoreCase(analysis.aiProvider())) {
+			return "GEMINI_AI";
+		}
+		return "FAKE_AI";
 	}
 
 	private record SlaRequest(String category, String priority) {

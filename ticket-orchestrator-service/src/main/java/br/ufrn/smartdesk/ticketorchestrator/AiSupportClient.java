@@ -28,6 +28,8 @@ public class AiSupportClient {
 			    suggestedAnswer
 			    ragSource
 			    mcpRuleUsed
+			    aiProvider
+			    realAiUsed
 			  }
 			}
 			""";

@@ -34,6 +34,8 @@ query AnalyzeTicket(`$input: AnalyzeTicketInput!) {
     priority
     ragSource
     mcpRuleUsed
+    aiProvider
+    realAiUsed
   }
 }
 "@
@@ -59,6 +61,8 @@ try {
         directAiPriority = $analysis.priority
         ragSource = $analysis.ragSource
         mcpRuleUsed = $analysis.mcpRuleUsed
+        aiProvider = $analysis.aiProvider
+        realAiUsed = $analysis.realAiUsed
     } | Format-List
 }
 catch {

@@ -57,7 +57,7 @@ public class TicketAnalysisService {
 				memoryHint);
 
 		SpringAiTicketTextClient.GeneratedText generatedText = springAiTicketTextClient.generate(promptContext)
-				.orElse(new SpringAiTicketTextClient.GeneratedText(summary, suggestedAnswer));
+				.orElse(new SpringAiTicketTextClient.GeneratedText(summary, suggestedAnswer, "FAKE_LOCAL", false));
 		String finalSuggestedAnswer = appendExternalAdvice(generatedText.suggestedAnswer(), externalMcp);
 
 		TicketAnalysis analysis = new TicketAnalysis(
@@ -68,7 +68,9 @@ public class TicketAnalysisService {
 				ragContext.source(),
 				mcpRule.ruleName(),
 				externalMcp.toolUsed(),
-				externalMcp.advice());
+				externalMcp.advice(),
+				generatedText.aiProvider(),
+				generatedText.realAiUsed());
 
 		conversationMemoryService.remember(input.conversationId(), description, analysis);
 		return analysis;

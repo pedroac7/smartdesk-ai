@@ -7,6 +7,8 @@ public record AiTicketAnalysis(
 		String suggestedAnswer,
 		String ragSource,
 		String mcpRuleUsed,
+		String aiProvider,
+		boolean realAiUsed,
 		String mode) {
 
 	private static final String FALLBACK_MODE = "FALLBACK";
@@ -19,6 +21,8 @@ public record AiTicketAnalysis(
 				null,
 				null,
 				null,
+				null,
+				false,
 				FALLBACK_MODE);
 	}
 

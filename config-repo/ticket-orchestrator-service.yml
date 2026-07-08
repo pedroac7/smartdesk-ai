@@ -1,4 +1,4 @@
-server:
+﻿server:
   port: 8081
 
 smartdesk:
@@ -7,10 +7,10 @@ smartdesk:
   fallback:
     category: "SUPORTE_GERAL"
     priority: "MEDIA"
-    summary: "Análise automática indisponível no momento."
-    suggested-answer: "Seu chamado foi registrado e será analisado por um atendente."
+    summary: "AnÃ¡lise automÃ¡tica indisponÃ­vel no momento."
+    suggested-answer: "Seu chamado foi registrado e serÃ¡ analisado por um atendente."
     sla-hours: 12
-    support-team: "Equipe de Contingência"
+    support-team: "Equipe de ContingÃªncia"
   services:
     ai-support:
       base-url: http://localhost:8082
@@ -47,7 +47,7 @@ resilience4j:
   timelimiter:
     instances:
       aiSupportService:
-        timeoutDuration: 3s
+        timeoutDuration: 15s
   bulkhead:
     instances:
       aiSupportService:
