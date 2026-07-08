@@ -16,6 +16,13 @@ smartdesk:
   services:
     support-rules-mcp:
       base-url: ${SMARTDESK_SERVICES_SUPPORT_RULES_MCP_BASE_URL:http://localhost:8084}
+  external-mcp:
+    filesystem:
+      enabled: ${SMARTDESK_EXTERNAL_MCP_FILESYSTEM_ENABLED:true}
+      command: ${SMARTDESK_EXTERNAL_MCP_FILESYSTEM_COMMAND:npx}
+      package-name: ${SMARTDESK_EXTERNAL_MCP_FILESYSTEM_PACKAGE_NAME:@modelcontextprotocol/server-filesystem}
+      docs-path: ${SMARTDESK_EXTERNAL_MCP_FILESYSTEM_DOCS_PATH:../external-mcp-docs}
+      timeout: ${SMARTDESK_EXTERNAL_MCP_FILESYSTEM_TIMEOUT:5s}
 
 management:
   endpoints:

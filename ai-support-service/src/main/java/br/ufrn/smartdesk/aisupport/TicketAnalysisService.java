@@ -14,16 +14,20 @@ public class TicketAnalysisService {
 
 	private final SupportRulesMcpClient supportRulesMcpClient;
 
+	private final ExternalFilesystemMcpClient externalFilesystemMcpClient;
+
 	private final SpringAiTicketTextClient springAiTicketTextClient;
 
 	public TicketAnalysisService(
 			ConversationMemoryService conversationMemoryService,
 			RagDocumentService ragDocumentService,
 			SupportRulesMcpClient supportRulesMcpClient,
+			ExternalFilesystemMcpClient externalFilesystemMcpClient,
 			SpringAiTicketTextClient springAiTicketTextClient) {
 		this.conversationMemoryService = conversationMemoryService;
 		this.ragDocumentService = ragDocumentService;
 		this.supportRulesMcpClient = supportRulesMcpClient;
+		this.externalFilesystemMcpClient = externalFilesystemMcpClient;
 		this.springAiTicketTextClient = springAiTicketTextClient;
 	}
 
@@ -35,10 +39,13 @@ public class TicketAnalysisService {
 		RagDocumentService.RagContext ragContext = ragDocumentService.findContext(normalizedDescription, category);
 		String ragGuidance = ragDocumentService.firstGuidanceLine(ragContext);
 		SupportRulesMcpClient.SupportRuleResult mcpRule = supportRulesMcpClient.findRule(category, priority);
+		ExternalFilesystemMcpClient.ExternalMcpResult externalMcp = externalFilesystemMcpClient.findAdvice(category,
+				priority);
 		String memoryHint = conversationMemoryService.summaryHint(input.conversationId());
 
 		String summary = summaryFor(category, ragGuidance, memoryHint);
-		String suggestedAnswer = suggestedAnswerFor(category, ragGuidance, mcpRule.recommendation(), memoryHint);
+		String suggestedAnswer = suggestedAnswerFor(category, ragGuidance, mcpRule.recommendation(), externalMcp,
+				memoryHint);
 
 		SpringAiTicketTextClient.TicketPromptContext promptContext = new SpringAiTicketTextClient.TicketPromptContext(
 				description,
@@ -46,18 +53,22 @@ public class TicketAnalysisService {
 				priority,
 				ragGuidance,
 				mcpRule.recommendation(),
+				externalMcp.available() ? externalMcp.advice() : "",
 				memoryHint);
 
 		SpringAiTicketTextClient.GeneratedText generatedText = springAiTicketTextClient.generate(promptContext)
 				.orElse(new SpringAiTicketTextClient.GeneratedText(summary, suggestedAnswer));
+		String finalSuggestedAnswer = appendExternalAdvice(generatedText.suggestedAnswer(), externalMcp);
 
 		TicketAnalysis analysis = new TicketAnalysis(
 				category,
 				priority,
 				generatedText.summary(),
-				generatedText.suggestedAnswer(),
+				finalSuggestedAnswer,
 				ragContext.source(),
-				mcpRule.ruleName());
+				mcpRule.ruleName(),
+				externalMcp.toolUsed(),
+				externalMcp.advice());
 
 		conversationMemoryService.remember(input.conversationId(), description, analysis);
 		return analysis;
@@ -98,7 +109,8 @@ public class TicketAnalysisService {
 		return baseSummary + " Contexto RAG: " + ragGuidance + memoryHint;
 	}
 
-	private String suggestedAnswerFor(String category, String ragGuidance, String mcpRecommendation, String memoryHint) {
+	private String suggestedAnswerFor(String category, String ragGuidance, String mcpRecommendation,
+			ExternalFilesystemMcpClient.ExternalMcpResult externalMcp, String memoryHint) {
 		String baseAnswer = switch (category) {
 			case "REDE" -> "Verifique a conexao, autenticacao e alcance da rede Wi-Fi.";
 			case "HARDWARE" -> "Verifique cabos, energia, perifericos e reinicie o equipamento.";
@@ -106,7 +118,19 @@ public class TicketAnalysisService {
 		};
 
 		String mcpText = mcpRecommendation.isBlank() ? "" : " Regra MCP: " + mcpRecommendation;
-		return baseAnswer + " Base local: " + ragGuidance + mcpText + memoryHint;
+		String externalMcpText = externalMcp.available() ? " Checklist externo: " + externalMcp.advice() : "";
+		return baseAnswer + " Base local: " + ragGuidance + mcpText + externalMcpText + memoryHint;
+	}
+
+	private String appendExternalAdvice(String suggestedAnswer,
+			ExternalFilesystemMcpClient.ExternalMcpResult externalMcp) {
+		if (!externalMcp.available() || externalMcp.advice().isBlank()) {
+			return suggestedAnswer;
+		}
+		if (suggestedAnswer.contains(externalMcp.advice())) {
+			return suggestedAnswer;
+		}
+		return suggestedAnswer + " Checklist externo: " + externalMcp.advice();
 	}
 
 	private String normalize(String value) {

@@ -80,6 +80,7 @@ public class SpringAiTicketTextClient {
 				Descricao: %s
 				Contexto RAG: %s
 				Regra MCP: %s
+				Checklist MCP externo: %s
 				Historico: %s
 				""".formatted(
 				context.category(),
@@ -87,6 +88,7 @@ public class SpringAiTicketTextClient {
 				context.description(),
 				context.ragGuidance(),
 				context.mcpRecommendation(),
+				context.externalMcpAdvice(),
 				context.memoryHint());
 	}
 
@@ -119,6 +121,7 @@ public class SpringAiTicketTextClient {
 			String priority,
 			String ragGuidance,
 			String mcpRecommendation,
+			String externalMcpAdvice,
 			String memoryHint) {
 	}
 

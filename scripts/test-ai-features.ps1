@@ -21,6 +21,8 @@ query AnalyzeTicket(`$input: AnalyzeTicketInput!) {
     suggestedAnswer
     ragSource
     mcpRuleUsed
+    externalMcpToolUsed
+    externalMcpAdvice
   }
 }
 "@
@@ -57,6 +59,8 @@ $memorySecond = Invoke-AiTicketAnalysis -ConversationId "ai-feature-memory" -Des
         priority = $network.priority
         ragSource = $network.ragSource
         mcpRuleUsed = $network.mcpRuleUsed
+        externalMcpToolUsed = $network.externalMcpToolUsed
+        externalMcpAdvice = $network.externalMcpAdvice
     },
     [PSCustomObject]@{
         scenario = "HARDWARE"
@@ -64,6 +68,8 @@ $memorySecond = Invoke-AiTicketAnalysis -ConversationId "ai-feature-memory" -Des
         priority = $hardware.priority
         ragSource = $hardware.ragSource
         mcpRuleUsed = $hardware.mcpRuleUsed
+        externalMcpToolUsed = $hardware.externalMcpToolUsed
+        externalMcpAdvice = $hardware.externalMcpAdvice
     },
     [PSCustomObject]@{
         scenario = "MEMORY_FIRST"
@@ -71,6 +77,8 @@ $memorySecond = Invoke-AiTicketAnalysis -ConversationId "ai-feature-memory" -Des
         priority = $memoryFirst.priority
         ragSource = $memoryFirst.ragSource
         mcpRuleUsed = $memoryFirst.mcpRuleUsed
+        externalMcpToolUsed = $memoryFirst.externalMcpToolUsed
+        externalMcpAdvice = $memoryFirst.externalMcpAdvice
     },
     [PSCustomObject]@{
         scenario = "MEMORY_SECOND"
@@ -78,8 +86,10 @@ $memorySecond = Invoke-AiTicketAnalysis -ConversationId "ai-feature-memory" -Des
         priority = $memorySecond.priority
         ragSource = $memorySecond.ragSource
         mcpRuleUsed = $memorySecond.mcpRuleUsed
+        externalMcpToolUsed = $memorySecond.externalMcpToolUsed
+        externalMcpAdvice = $memorySecond.externalMcpAdvice
     }
-) | Format-Table -AutoSize
+) | Format-List
 
 Write-Host ""
 Write-Host "Memory demo summary from second call:"

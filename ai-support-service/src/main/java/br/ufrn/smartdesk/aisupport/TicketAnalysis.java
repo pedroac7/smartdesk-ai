@@ -6,5 +6,7 @@ public record TicketAnalysis(
 		String summary,
 		String suggestedAnswer,
 		String ragSource,
-		String mcpRuleUsed) {
+		String mcpRuleUsed,
+		String externalMcpToolUsed,
+		String externalMcpAdvice) {
 }
