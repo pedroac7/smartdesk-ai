@@ -1,0 +1,44 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: config-server
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["host.docker.internal:8888"]
+
+  - job_name: eureka-server-8761
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["host.docker.internal:8761"]
+
+  - job_name: eureka-server-8762
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["host.docker.internal:8762"]
+
+  - job_name: gateway-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["host.docker.internal:8080"]
+
+  - job_name: ticket-orchestrator-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["host.docker.internal:8081"]
+
+  - job_name: ai-support-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["host.docker.internal:8082"]
+
+  - job_name: sla-function-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["host.docker.internal:8083"]
+
+  - job_name: support-rules-mcp-server
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["host.docker.internal:8084"]

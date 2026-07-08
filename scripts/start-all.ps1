@@ -46,7 +46,10 @@ function Start-SmartDeskService {
 Write-Host "SmartDesk AI project root: $projectRoot"
 Write-Host ""
 
-Start-SmartDeskService -ServiceDirectory "config-server" -WindowTitle "SmartDesk config-server"
+Start-SmartDeskService -ServiceDirectory "config-server" -WindowTitle "SmartDesk config-server" -Environment @{
+    MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE = "health,info,metrics,prometheus"
+    MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS = "always"
+}
 Write-Host "Waiting for config-server..."
 Start-Sleep -Seconds 15
 
@@ -70,6 +73,9 @@ Start-SmartDeskService -ServiceDirectory "ai-support-service" -WindowTitle "Smar
 Start-Sleep -Seconds 5
 
 Start-SmartDeskService -ServiceDirectory "sla-function-service" -WindowTitle "SmartDesk sla-function-service"
+Start-Sleep -Seconds 5
+
+Start-SmartDeskService -ServiceDirectory "support-rules-mcp-server" -WindowTitle "SmartDesk support-rules-mcp-server"
 Start-Sleep -Seconds 5
 
 Start-SmartDeskService -ServiceDirectory "ticket-orchestrator-service" -WindowTitle "SmartDesk ticket-orchestrator-service"
