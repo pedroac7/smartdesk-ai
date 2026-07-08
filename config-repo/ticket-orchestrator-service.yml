@@ -9,8 +9,8 @@ smartdesk:
     priority: "MEDIA"
     summary: "Análise automática indisponível no momento."
     suggested-answer: "Seu chamado foi registrado e será analisado por um atendente."
-    sla-hours: 24
-    support-team: "Triagem Manual"
+    sla-hours: 12
+    support-team: "Equipe de Contingência"
   services:
     ai-support:
       base-url: http://localhost:8082
